@@ -1,0 +1,52 @@
+package com.internal.modules.render;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.math.AxisAlignedBB;
+import org.lwjgl.opengl.GL11;
+
+public class Hitboxes extends Module {
+    public Hitboxes() {
+        super("Hitboxes", Category.RENDER);
+    }
+
+    @Override
+    public void onRender3D() {
+        Minecraft mc = Minecraft.getMinecraft();
+
+        for (Entity entity : mc.world.loadedEntityList) {
+            if (entity == mc.player) continue;
+
+            double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * mc.getRenderPartialTicks() - mc.getRenderManager().viewerPosX;
+            double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * mc.getRenderPartialTicks() - mc.getRenderManager().viewerPosY;
+            double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * mc.getRenderPartialTicks() - mc.getRenderManager().viewerPosZ;
+
+            AxisAlignedBB box = entity.getEntityBoundingBox().offset(-entity.posX, -entity.posY, -entity.posZ).offset(x, y, z);
+
+            GlStateManager.pushMatrix();
+            GlStateManager.disableTexture2D();
+            GlStateManager.disableDepth();
+            GlStateManager.color(1f, 0f, 0f, 0.5f); // red box
+
+            drawOutlinedBox(box);
+
+            GlStateManager.enableDepth();
+            GlStateManager.enableTexture2D();
+            GlStateManager.popMatrix();
+        }
+    }
+
+    private void drawOutlinedBox(AxisAlignedBB bb) {
+        GL11.glBegin(GL11.GL_LINES);
+        GL11.glVertex3d(bb.minX, bb.minY, bb.minZ);
+        GL11.glVertex3d(bb.maxX, bb.minY, bb.minZ);
+        GL11.glVertex3d(bb.maxX, bb.minY, bb.minZ);
+        GL11.glVertex3d(bb.maxX, bb.minY, bb.maxZ);
+        GL11.glVertex3d(bb.maxX, bb.minY, bb.maxZ);
+        GL11.glVertex3d(bb.minX, bb.minY, bb.maxZ);
+        GL11.glVertex3d(bb.minX, bb.minY, bb.maxZ);
+        GL11.glVertex3d(bb.minX, bb.minY, bb.minZ);
+        GL11.glEnd();
+    }
+}

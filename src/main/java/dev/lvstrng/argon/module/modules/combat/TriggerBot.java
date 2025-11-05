@@ -1,3 +1,4 @@
+
 package dev.lvstrng.argon.module.modules.combat;
 
 import dev.lvstrng.argon.Argon;
